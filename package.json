@@ -1,0 +1,24 @@
+{
+  "name": "git-undo",
+  "version": "1.0.0",
+  "description": "Interactive Git disaster recovery and reflog unwinder CLI.",
+  "bin": {
+    "git-undo": "./bin/cli.js"
+  },
+  "scripts": {
+    "test": "node test/run.js"
+  },
+  "keywords": [
+    "git",
+    "recovery",
+    "undo",
+    "reflog",
+    "cli",
+    "disaster-recovery"
+  ],
+  "author": "Dhani078 <dhanisepeda@gmail.com>",
+  "license": "MIT",
+  "engines": {
+    "node": ">=20.0.0"
+  }
+}
