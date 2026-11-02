@@ -1,31 +1,38 @@
 ---
 name: git-undo
-description: Interactive Git disaster recovery and reflog unwinder. Use when user accidentally commits to wrong branch, botches a rebase or merge, deletes a local branch, or loses work after git reset.
+description: Interactive Git disaster recovery CLI and agent skill. Restores broken repositories, undone rebases, accidental commits, and deleted branches using deterministic reflog analysis.
+risk: safe
 version: 1.0.0
-author: Dhani078
 ---
 
-Git Undo Skill
+NAME
+git-undo - Deterministic Git state recovery and reflog analysis engine
 
-Use when working inside any Git repository where an unexpected, destructive, or mistaken Git command was executed.
+SYNOPSIS
+npx git-undo [command] [options]
 
-Instructions
+COMMANDS
+- scan: Display classified recent reflog operations.
+- last: Revert the repository to the state immediately preceding the latest command.
+- recover-branch <name>: Restore an accidentally deleted local branch to its last commit hash.
 
-1. Triage the repository state:
-   Run git status and git-undo scan --json to inspect the recent reflog entries without modifying state.
+OPTIONS
+- --dry-run: Simulate the recovery plan and print target hashes without modifying repository state.
+- --limit <number>: Set scan window size (default 10, range 1 to 100).
+- --json: Output structured JSON representation of reflog events.
 
-2. Identify the catastrophic action:
-   - Accidental commit on wrong branch: Note commit hash and previous branch tip.
-   - Botched rebase or merge: Identify the HEAD ref immediately preceding rebase (start) or merge.
-   - Accidentally deleted branch: Find the last commit where the deleted ref was pointed.
+DETERMINISTIC BEHAVIOR AND INVARIANTS
+1. The tool must never perform destructive actions without creating a backup reference pointer at refs/original/git-undo-backup-[timestamp].
+2. When the working tree has dirty uncommitted changes that would be overwritten by a reset, git-undo must abort with exit code 1.
+3. Arguments to git are always passed as discrete argument arrays, never through shell string interpolation.
+4. Output is generated exclusively in standard UTF-8 text with no external network requests.
 
-3. Execute recovery:
-   - In automated mode: invoke npx git-undo last --yes after confirming target commit with user.
-   - In manual mode: guide user with exact atomic commands:
-     ```bash
-     git branch backup-before-undo
-     git reset --hard HEAD@{1}
-     ```
+AGENT INTEGRATION INSTRUCTIONS
+When diagnosing an unintended Git state modification:
+1. Run git-undo scan --json to inspect the sequence of recent reflog actions.
+2. Verify if the target state matches the user objective.
+3. Execute git-undo last --dry-run to confirm safety.
+4. Apply git-undo last to execute restoration.
 
-4. Verify repository integrity:
-   Run git status and git log -n 3 --oneline to confirm that code is restored and zero commits were lost.
+AUTHOR
+Dhani078 (dhanisepeda@gmail.com)
